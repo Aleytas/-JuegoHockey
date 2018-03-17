@@ -1,41 +1,46 @@
-const pelota = function () 
+const Pelota = function()
 {
-	const r = 20
-	let x = Math.floor(width / 2)
-	let y = Math.floor(height / 2)
-	let stepX = 5
-	let stepY = 2
+	const r = 10 //  RADIO DEL CIRCULO CENTRAL
+	let x = Math.round(width/2)
+	let y = Math.round(height/2)
+	let stepX = 8 // VELOCIDAD DE MOVIMIENTO EN X
+	let stepY = 8 //  VELOCIDAD DE MOVIMIENTO EN Y
 
- ////////////////////////////////////////////////////////////////////////////////////
-
-	const reset = function () 
+////////     COORDENADAS + VELOCIDAD  /////
+	const mover = function()
 	{
-		 x = Math.floor(width / 2)
-		 y = Math.floor(height / 2)
-		 stepX *= Math.round(Math.random()) * 2 - 1
-		 stepY *= Math.round(Math.random()) * 2 - 1
+		x += stepX
+		y += stepY
+		edges()
 	}
 
- /////////////////////////////////////////////////////////////////////////////////////
 
-	const edges = function ()
+	const reset = function()
 	{
-		if (y - r <= 0 || y + r >= height) 
-			stepY = -stepY;
+		x = Math.floor(width/2)
+		y = Math.floor(height/2)
+		stepX *= Math.round(Math.random()) * 2 - 1
+		stepY *= Math.round(Math.random()) * 2 - 1
 	}
 
- ////////////////////////////////////////////////////
+	const edges = function(){
 
-	const checkScore = function()
-	{
-		if (x-r<=0) 
+		if(y - r <= 0  || y + r >= height)
 		{
+			stepY = -stepY
+		}
+	}
+
+	const checkScore = function(g1,g2)
+	{
+		console.log(g1)
+
+		if(x <= g1.w + r && y >= g1.y && y <= g1.y+g1.h){
 			reset()
 			return 2
 		}
 
-		if (x + r >= width) 
-		{
+		if( x >= width - g2.w && y >= g1.y && y <= g1.y+g1.h){
 			reset()
 			return 1
 		}
@@ -43,53 +48,50 @@ const pelota = function ()
 		return 0
 	}
 
- //////  METODO MOVIEMIENTO /////////////////////////////
-	
-	const move = function () 
+//////////  PINTA PELOTA  /////////////
+
+	const draw = function()
 	{
-		x += stepX
-		y += stepY
-		edges()
+	////  APARIENCIA PELOTA
+		ellipseMode(CENTER)
+		fill("white")
+		ellipse(x,y,r*4,r*4)
+
+	//// APARIENCIA CIRCULO CENTRAL
+		ellipseMode(CENTER)
+		fill("YELLOW")
+		ellipse(width/2,height/2,r*8,r*8)
 	}
 
-  //////////////7//  METODO GOLPE /////////////////////////
+/////////////  COLISION //////////////////
 
-	const collision= function(player)
+	const collision = function(jugador)
 	{
-		let dx = Math.abs(x-player.getX() - player.getW()/2)
-		let dy= Math.abs(y-player.getY() - player.getH()/2)
+		let dx = Math.abs(x - jugador.getX() - jugador.getW() / 2)
+		let dy = Math.abs(y - jugador.getY() - jugador.getH() / 2)
 
-		if (dx > player.getW()/2+r || dy>player.getH()/2 +r) 
-		return false
-
-		if (dx <= player.getW()/2 || dy>player.getH()/2) 
+		if(x <= 0 || x >= width)
 		{
-			stepX= -stepX
+			stepX = -stepX
 			return true
 		}
-		
-	}	
 
- //////////////////////////////////////////////////////////
+		if(dx >= jugador.getW() || dy >= jugador.getH() / 2 + r)
+		{
+			return false
+		}
 
-
-	const draw = function () 
-	{
-		push()
-		ellipseMode(CENTER);
-		fill('#fff');
-		noStroke()
-		ellipse(x, y, r * 2, r * 2);
-		pop()
+		if(dx <= jugador.getW() / 2 || dy <= jugador.getH() / 2 || dx)
+		{
+			stepX = -stepX
+			return true
+		}
 	}
 
- ////  METODOS QUE SE USARAN QUE SEA PUBLICO SE COLOCA AQUI
-	return
-	{
+	return {
 		draw,
-		move,
+		mover,
 		collision,
-		checkScore
+		checkScore,
 	}
-	
 }
